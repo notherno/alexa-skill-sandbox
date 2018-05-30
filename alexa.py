@@ -12,9 +12,11 @@ ask = Ask(app, '/')
 host = '0.0.0.0'
 PORT = 5000
 
+INTENT_NAME = 'Gohan'
+
 parsed_config = parse.urlparse(os.environ.get('DATABASE_URL'))
 
-@ask.intent('Gohan')
+@ask.intent(INTENT_NAME)
 def syukkin(firstname):
     with MySQLdb.connect(
         user=parsed_config.username,
@@ -31,7 +33,7 @@ def syukkin(firstname):
 
     speech_text = 'おすすめは{0}です'.format(choice)
 
-    return statement(speech_text).simple_card('Syukkin', speech_text)
+    return statement(speech_text).simple_card(INTENT_NAME, speech_text)
 
 if __name__ == '__main__':
     app.run(host=host, port=PORT)
