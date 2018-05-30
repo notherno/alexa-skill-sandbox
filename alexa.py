@@ -21,7 +21,7 @@ def syukkin(firstname):
         passwd=parsed_config.password,
         host=parsed_config.hostname,
         db=parsed_config.path[1:],
-        charset='utf-8'
+        charset='utf8'
     ) as cur:
         cur.execute('SELECT `name` FROM `restaurants`')
 
