@@ -14,7 +14,7 @@ PORT = 5000
 
 parsed_config = parse.urlparse(os.environ.get('DATABASE_URL'))
 
-@ask.intent('Syukkin')
+@ask.intent('Gohan')
 def syukkin(firstname):
     with MySQLdb.connect(
         user=parsed_config.username,
