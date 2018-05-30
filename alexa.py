@@ -28,7 +28,11 @@ def syukkin(firstname):
 
         rows = cur.fetchall()
 
+        print(rows)
+
         choice = random.choice([row[0] for row in rows])
+
+        print(choice)
 
     speech_text = 'それはそうと今日の昼はどこにしますか？おすすめは{0}です'.format(choice)
 
