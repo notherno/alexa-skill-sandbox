@@ -29,7 +29,7 @@ def syukkin(firstname):
 
         choice = random.choice([row[0] for row in rows])
 
-    speech_text = 'それはそうと今日の昼はどこにしますか？おすすめは{0}です'.format(choice)
+    speech_text = 'おすすめは{0}です'.format(choice)
 
     return statement(speech_text).simple_card('Syukkin', speech_text)
 
