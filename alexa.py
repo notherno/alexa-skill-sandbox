@@ -5,6 +5,7 @@ from flask_ask import Ask, statement
 app = Flask(__name__)
 ask = Ask(app, '/')
 
+host = '0.0.0.0'
 PORT = 5000
 
 @ask.intent('Syukkin')
