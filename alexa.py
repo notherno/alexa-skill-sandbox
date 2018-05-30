@@ -14,4 +14,4 @@ def syukkin(firstname):
     return statement(speech_text).simple_card('Syukkin', speech_text)
 
 if __name__ == '__main__':
-    app.run(port=PORT)
+    app.run(host=host, port=PORT)
