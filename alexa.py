@@ -25,13 +25,13 @@ def syukkin(firstname):
         db=parsed_config.path[1:],
         charset='utf8'
     ) as cur:
-        cur.execute('SELECT `name` FROM `restaurants`')
+        cur.execute('SELECT `name`, `address` FROM `restaurants`')
 
         rows = cur.fetchall()
 
-        choice = random.choice([row[0] for row in rows])
+        choice = random.choice(rows)
 
-    speech_text = 'おすすめは{0}です'.format(choice)
+    speech_text = 'おすすめは{0}です。住所は{1}です。'.format(choice[0], choice[1])
 
     return statement(speech_text).simple_card(INTENT_NAME, speech_text)
 
