@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 pip = "==9.0.0"
 flask-ask = "==0.9.7"
+cryptography = "<2.2"
 
 [dev-packages]
 
