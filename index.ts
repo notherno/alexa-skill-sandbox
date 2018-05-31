@@ -1,6 +1,7 @@
 import express = require('express')
 import alexa = require('alexa-app')
 import { Stream } from 'alexa-app'
+import uuid = require('uuid/v4')
 
 const PORT = 5000
 const HOST = '0.0.0.0'
@@ -29,8 +30,8 @@ alexaApp.intent(
 
     const stream = {
       url: `${process.env.HOST_NAME}/assets/audio.m4a`,
-      token: 'someexampletokenhere',
-      expectedPreviousToken: 'someprevioustokenhere',
+      token: uuid(),
+      expectedPreviousToken: uuid(),
     } as Stream
 
     response
