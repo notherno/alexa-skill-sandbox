@@ -31,12 +31,11 @@ alexaApp.intent(
     const stream = {
       url: `${process.env.HOST_NAME}/assets/audio.m4a`,
       token: uuid(),
-      expectedPreviousToken: uuid(),
     } as Stream
 
     response
       .say('気分を変えて音楽を聴きましょう')
-      .audioPlayerPlayStream('ENQUEUE', stream)
+      .audioPlayerPlayStream('REPLACE_ALL', stream)
   },
 )
 
