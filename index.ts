@@ -1,11 +1,21 @@
+import 'isomorphic-fetch'
 import express = require('express')
 import alexa = require('alexa-app')
 import { Stream } from 'alexa-app'
 import uuid = require('uuid/v4')
+import { Dropbox } from 'dropbox'
 
 const PORT = 5000
 const HOST = '0.0.0.0'
 const app = express()
+
+const dropbox = new Dropbox({ accessToken: process.env.DROPBOX_TOKEN })
+
+let filePaths: string[] = []
+;(async () => {
+  const files = await dropbox.filesListFolder({ path: '/sound/radio/' })
+  filePaths = files.entries.map(file => file.path_lower)
+})()
 
 app.use('/assets', express.static('assets'))
 
@@ -18,11 +28,15 @@ alexaApp.express({
   debug: true,
 })
 
-const getAudioStream = (): Stream => ({
-  url: `${process.env.HOST_NAME}/assets/audio.m4a`,
-  token: uuid(),
-  offsetInMilliseconds: 0,
-})
+const getAudioStream = async (): Promise<Stream> => {
+  const data = await dropbox.filesGetTemporaryLink({ path: filePaths[1] })
+
+  return {
+    url: data.link,
+    token: uuid(),
+    offsetInMilliseconds: 0,
+  }
+}
 
 alexaApp.intent(
   'Gohan',
@@ -31,31 +45,31 @@ alexaApp.intent(
       KIND: 'AMAZON.Food',
     },
   },
-  (request, response) => {
+  async (request, response) => {
     const kind = request.slots['KIND']
 
     response
       .say('気分を変えて音楽を聴きましょう')
-      .audioPlayerPlayStream('REPLACE_ALL', getAudioStream())
+      .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
   },
 )
 
-alexaApp.intent('AMAZON.PauseIntent', {}, (request, response) => {
+alexaApp.intent('AMAZON.PauseIntent', {}, async (request, response) => {
   response
     .say('もう一回聞きたいということでしょうか')
-    .audioPlayerPlayStream('REPLACE_ALL', getAudioStream())
+    .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
 })
 
-alexaApp.intent('AMAZON.ResumeIntent', {}, (request, response) => {
+alexaApp.intent('AMAZON.ResumeIntent', {}, async (request, response) => {
   response
     .say('仕方ないですね')
-    .audioPlayerPlayStream('REPLACE_ALL', getAudioStream())
+    .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
 })
 
-alexaApp.audioPlayer('PlaybackFinished', (request, response) => {
+alexaApp.audioPlayer('PlaybackFinished', async (request, response) => {
   response
     .say('さらに音楽を聴きましょう')
-    .audioPlayerPlayStream('REPLACE_ALL', getAudioStream())
+    .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
 })
 
 app.listen(PORT, HOST)
