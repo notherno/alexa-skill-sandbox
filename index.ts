@@ -39,6 +39,10 @@ alexaApp.intent(
   },
 )
 
+alexaApp.intent('AMAZON.ResumeIntent', {}, (request, response) => {
+  response.say('仕方ないですね').audioPlayerStop()
+})
+
 alexaApp.audioPlayer('PlaybackFinished', (request, response) => {
   const stream = {
     url: `${process.env.HOST_NAME}/assets/audio.m4a`,
