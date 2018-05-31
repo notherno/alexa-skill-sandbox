@@ -57,9 +57,7 @@ alexaApp.intent(
 )
 
 alexaApp.intent('AMAZON.PauseIntent', {}, async (request, response) => {
-  response
-    .say('もう一回聞きたいということでしょうか')
-    .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
+  response.say('わかりました').audioPlayerStop()
 })
 
 alexaApp.intent('AMAZON.ResumeIntent', {}, async (request, response) => {
