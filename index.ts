@@ -29,7 +29,9 @@ alexaApp.express({
 })
 
 const getAudioStream = async (): Promise<Stream> => {
-  const data = await dropbox.filesGetTemporaryLink({ path: filePaths[1] })
+  const data = await dropbox.filesGetTemporaryLink({
+    path: filePaths[Math.floor(Math.random() * (filePaths.length - 1))],
+  })
 
   return {
     url: data.link,
