@@ -11,21 +11,15 @@ const alexaApp = new alexa.app('')
 alexaApp.express({
   expressApp: app,
   checkCert: false,
-
-  // sets up a GET route when set to true. This is handy for testing in
-  // development, but not recommended for production. disabled by default
   debug: true,
 })
 
-// from here on you can setup any other express routes or middlewares as normal
 app.set('view engine', 'ejs')
 
-alexaApp.launch((request, response) => {
-  response.say('ひらいたよ')
-})
-
 alexaApp.intent('Gohan', {}, (request, response) => {
-  response.say('ご飯にしましょう')
+  const kind = request.slots['KIND']
+
+  response.say(`${kind.value}にしましょう`)
 })
 
 app.listen(PORT, HOST)
