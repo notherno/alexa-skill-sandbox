@@ -14,10 +14,10 @@ alexaApp.express({
   debug: true,
 })
 
-app.set('view engine', 'ejs')
-
 alexaApp.intent('Gohan', {}, (request, response) => {
   const kind = request.slots['KIND']
+
+  console.log(request)
 
   response.say(`${kind.value}にしましょう`)
 })
