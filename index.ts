@@ -30,6 +30,7 @@ alexaApp.intent(
     const stream = {
       url: `${process.env.HOST_NAME}/assets/audio.m4a`,
       token: 'someexampletokenhere',
+      expectedPreviousToken: 'someprevioustokenhere',
     } as Stream
 
     response
