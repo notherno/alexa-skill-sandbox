@@ -17,7 +17,7 @@ alexaApp.express({
 alexaApp.intent('Gohan', {}, (request, response) => {
   const kind = request.slots['KIND']
 
-  console.log(request)
+  console.log(JSON.stringify(request))
 
   response.say(`${kind.value}にしましょう`)
 })
