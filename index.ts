@@ -39,6 +39,17 @@ alexaApp.intent(
   },
 )
 
+alexaApp.audioPlayer('PlaybackFinished', (request, response) => {
+  const stream = {
+    url: `${process.env.HOST_NAME}/assets/audio.m4a`,
+    token: uuid(),
+  } as Stream
+
+  response
+    .say('さらに音楽を聴きましょう')
+    .audioPlayerPlayStream('REPLACE_ALL', stream)
+})
+
 app.listen(PORT, HOST)
 
 console.log('Listening on port ' + PORT)
