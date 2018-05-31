@@ -14,13 +14,21 @@ alexaApp.express({
   debug: true,
 })
 
-alexaApp.intent('Gohan', {}, (request, response) => {
-  const kind = request.slots['KIND']
+alexaApp.intent(
+  'Gohan',
+  {
+    slots: {
+      KIND: 'AMAZON.Food',
+    },
+  },
+  (request, response) => {
+    const kind = request.slots['KIND']
 
-  console.log(JSON.stringify(request))
+    console.log(JSON.stringify(request))
 
-  response.say(`${kind.value}にしましょう`)
-})
+    response.say(`${kind.value}にしましょう`)
+  },
+)
 
 app.listen(PORT, HOST)
 
