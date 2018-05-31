@@ -18,6 +18,12 @@ alexaApp.express({
   debug: true,
 })
 
+const getAudioStream = (): Stream => ({
+  url: `${process.env.HOST_NAME}/assets/audio.m4a`,
+  token: uuid(),
+  offsetInMilliseconds: 0,
+})
+
 alexaApp.intent(
   'Gohan',
   {
@@ -28,30 +34,28 @@ alexaApp.intent(
   (request, response) => {
     const kind = request.slots['KIND']
 
-    const stream = {
-      url: `${process.env.HOST_NAME}/assets/audio.m4a`,
-      token: uuid(),
-    } as Stream
-
     response
       .say('気分を変えて音楽を聴きましょう')
-      .audioPlayerPlayStream('REPLACE_ALL', stream)
+      .audioPlayerPlayStream('REPLACE_ALL', getAudioStream())
   },
 )
 
+alexaApp.intent('AMAZON.PauseIntent', {}, (request, response) => {
+  response
+    .say('もう一回聞きたいということでしょうか')
+    .audioPlayerPlayStream('REPLACE_ALL', getAudioStream())
+})
+
 alexaApp.intent('AMAZON.ResumeIntent', {}, (request, response) => {
-  response.say('仕方ないですね').audioPlayerStop()
+  response
+    .say('仕方ないですね')
+    .audioPlayerPlayStream('REPLACE_ALL', getAudioStream())
 })
 
 alexaApp.audioPlayer('PlaybackFinished', (request, response) => {
-  const stream = {
-    url: `${process.env.HOST_NAME}/assets/audio.m4a`,
-    token: uuid(),
-  } as Stream
-
   response
     .say('さらに音楽を聴きましょう')
-    .audioPlayerPlayStream('REPLACE_ALL', stream)
+    .audioPlayerPlayStream('REPLACE_ALL', getAudioStream())
 })
 
 app.listen(PORT, HOST)
