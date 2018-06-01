@@ -2,7 +2,7 @@ import 'isomorphic-fetch'
 import express = require('express')
 import alexa = require('alexa-app')
 import _ from 'lodash'
-import { Stream } from 'alexa-app'
+import { AudioItem, Stream } from 'alexa-app'
 import youtubeStream = require('youtube-audio-stream')
 import uuid = require('uuid/v4')
 import mysql = require('mysql2/promise')
@@ -94,12 +94,12 @@ const getNextAnison = (token: string) => {
   if (index === -1) {
     return anisonMap[anisonList[0]]
   }
-  const nextIndex = index === anisonList.length ? 0 : index + 1
-  return anisonMap[nextIndex]
+  const nextToken = anisonList[index === anisonList.length ? 0 : index + 1]
+  return anisonMap[nextToken]
 }
 
 const mapAnisonToStream = (anison: Anison, getPrevious: boolean): Stream => {
-  const stream = {
+  const stream: Stream = {
     url: buildAnisonUrl(anison.video_id),
     token: anison.token,
     offsetInMilliseconds: 0,
@@ -123,9 +123,14 @@ alexaApp.intent(
 
 alexaApp.intent('PlayRadioIntent', {}, async (request, response) => {
   const anison = anisonMap[anisonList[0]]
-  response
-    .say('ランダムに再生します')
-    .audioPlayerPlayStream('REPLACE_ALL', mapAnisonToStream(anison, false))
+  response.say('ランダムに再生します').audioPlayerPlay('REPLACE_ALL', {
+    stream: mapAnisonToStream(anison, false),
+    metadata: {
+      title: anison.video_title,
+      subtitle: `@${anison.user_name}`,
+      art: { sources: [{ url: buildYoutubeThumbnailUrl(anison.video_id) }] },
+    },
+  } as AudioItem)
 })
 
 alexaApp.intent('AMAZON.PauseIntent', {}, async (request, response) => {
@@ -163,7 +168,14 @@ alexaApp.audioPlayer('PlaybackStarted', async (request, response) => {
 alexaApp.audioPlayer('PlaybackNearlyFinished', async (request, response) => {
   const token = request.data.request.token
   const anison = getNextAnison(token)
-  response.audioPlayerPlayStream('ENQUEUE', mapAnisonToStream(anison, true))
+  response.audioPlayerPlay('ENQUEUE', {
+    stream: mapAnisonToStream(anison, true),
+    metadata: {
+      title: anison.video_title,
+      subtitle: `@${anison.user_name}`,
+      art: { sources: [{ url: buildYoutubeThumbnailUrl(anison.video_id) }] },
+    },
+  } as AudioItem)
 })
 
 app.listen(PORT, HOST)
