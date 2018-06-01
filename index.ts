@@ -29,7 +29,12 @@ const getConn = async () =>
     database: dbConfig.database,
   })
 
-let anisons = []
+let anisons: {
+  video_id: string
+  user_name: string
+  title: string
+  added_at: string
+}[] = []
 ;(async () => {
   const conn = await getConn()
   const result = await conn.execute('SELECT * FROM `anison_today`')
@@ -53,10 +58,19 @@ alexaApp.express({
   debug: true,
 })
 
+const getRandomAnison = () =>
+  anisons[Math.floor(Math.random() * anisons.length)]
+
+const buildAnisonUrl = (videoId: string) =>
+  `${process.env.HOST_NAME}/y/${videoId}`
+
+const buildYoutubeThumbnailUrl = (videoId: string) =>
+  `https://i.ytimg.com/vi/${videoId}/0.jpg`
+
 const getAudioStream = async (): Promise<Stream> => {
-  const anison = anisons[Math.floor(Math.random() * anisons.length)]
+  const anison = getRandomAnison()
   return {
-    url: `${process.env.HOST_NAME}/y/${anison.video_id}`,
+    url: buildAnisonUrl(anison.video_id),
     token: uuid(),
     offsetInMilliseconds: 0,
   }
@@ -75,9 +89,22 @@ alexaApp.intent(
 )
 
 alexaApp.intent('PlayRadioIntent', {}, async (request, response) => {
-  response.say('ランダムに再生します').audioPlayerPlayStream('REPLACE_ALL', {
-    ...(await getAudioStream()),
-  })
+  const anison = getRandomAnison()
+  response
+    .say('ランダムに再生します')
+    .audioPlayerPlayStream('REPLACE_ALL', {
+      url: buildAnisonUrl(anison.video_id),
+      token: uuid(),
+      offsetInMilliseconds: 0,
+    })
+    .card({
+      type: 'Standard',
+      title: anison.title,
+      content: `Added by ${anison.user_name} at ${anison.added_at}`,
+      image: {
+        largeImageUrl: buildYoutubeThumbnailUrl(anison.video_id),
+      },
+    })
 })
 
 alexaApp.intent('AMAZON.PauseIntent', {}, async (request, response) => {
