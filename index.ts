@@ -50,6 +50,8 @@ let anisonList: string[] = []
   )
   const anisons = result[0].map(anison => ({ ...anison, token: uuid() }))
 
+  console.log(anisons)
+
   anisonMap = _.keyBy(anisons, 'token')
   anisonList = _.shuffle(anisons).map(anison => anison.token)
 })()
