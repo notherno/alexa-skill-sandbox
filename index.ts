@@ -75,9 +75,9 @@ alexaApp.intent(
 )
 
 alexaApp.intent('PlayRadioIntent', {}, async (request, response) => {
-  response
-    .say('ランダムに再生します')
-    .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
+  response.say('ランダムに再生します').audioPlayerPlayStream('REPLACE_ALL', {
+    ...(await getAudioStream()),
+  })
 })
 
 alexaApp.intent('AMAZON.PauseIntent', {}, async (request, response) => {
@@ -93,7 +93,10 @@ alexaApp.intent('AMAZON.ResumeIntent', {}, async (request, response) => {
 alexaApp.audioPlayer('PlaybackNearlyFinished', async (request, response) => {
   response
     .say('さらに音楽を聴きましょう')
-    .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
+    .audioPlayerPlayStream('ENQUEUE', {
+      ...(await getAudioStream()),
+      expectedPreviousToken: request.selectedElementToken,
+    })
 })
 
 app.listen(PORT, HOST)
