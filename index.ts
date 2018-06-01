@@ -178,6 +178,19 @@ alexaApp.audioPlayer('PlaybackNearlyFinished', async (request, response) => {
   } as AudioItem)
 })
 
+alexaApp.audioPlayer('PlaybackFailed', async (request, response) => {
+  const token = request.data.request.token
+  const anison = getNextAnison(token)
+  response.audioPlayerPlay('ENQUEUE', {
+    stream: mapAnisonToStream(anison, true),
+    metadata: {
+      title: anison.video_title,
+      subtitle: `@${anison.user_name}`,
+      art: { sources: [{ url: buildYoutubeThumbnailUrl(anison.video_id) }] },
+    },
+  } as AudioItem)
+})
+
 app.listen(PORT, HOST)
 
 console.log('Listening on port ' + PORT)
