@@ -1,6 +1,7 @@
 import 'isomorphic-fetch'
 import express = require('express')
 import alexa = require('alexa-app')
+import _ from 'lodash'
 import { Stream } from 'alexa-app'
 import youtubeStream = require('youtube-audio-stream')
 import uuid = require('uuid/v4')
@@ -20,6 +21,14 @@ const dbConfig = parseDbUrl(process.env.DATABASE_URL) as {
   database: string
 }
 
+interface Anison {
+  video_id: string
+  user_name: string
+  video_title: string
+  added_at: string
+  token: string
+}
+
 const getConn = async () =>
   await mysql.createConnection({
     host: dbConfig.host,
@@ -29,16 +38,20 @@ const getConn = async () =>
     database: dbConfig.database,
   })
 
-let anisons: {
-  video_id: string
-  user_name: string
-  video_title: string
-  added_at: string
-}[] = []
+let anisonMap: {
+  [token: string]: Anison
+} = {}
+
+let anisonList: string[] = []
 ;(async () => {
   const conn = await getConn()
-  const result = await conn.execute('SELECT * FROM `anison_today`')
-  anisons = result[0]
+  const result = await conn.execute(
+    'SELECT * FROM `anison_today` WHERE `is_active` = 1',
+  )
+  const anisons = result[0].map(anison => ({ ...anison, token: uuid() }))
+
+  anisonMap = _.keyBy(anisons, 'token')
+  anisonList = _.shuffle(anisons).map(anison => anison.token)
 })()
 
 app.use('/assets', express.static('assets'))
@@ -58,23 +71,37 @@ alexaApp.express({
   debug: true,
 })
 
-const getRandomAnison = () =>
-  anisons[Math.floor(Math.random() * anisons.length)]
-
 const buildAnisonUrl = (videoId: string) =>
   `${process.env.HOST_NAME}/y/${videoId}`
 
 const buildYoutubeThumbnailUrl = (videoId: string) =>
   `https://i.ytimg.com/vi/${videoId}/0.jpg`
 
-const getAudioStream = async (): Promise<Stream> => {
-  const anison = getRandomAnison()
-  return {
-    url: buildAnisonUrl(anison.video_id),
-    token: uuid(),
-    offsetInMilliseconds: 0,
+const getPreviousToken = (token: string) => {
+  const index = anisonList.indexOf(token)
+  if (index === -1) {
+    return token
   }
+  const prevIndex = index === 0 ? anisonList.length - 1 : index - 1
+  return anisonMap[prevIndex].token
 }
+
+const getNextAnison = (token: string) => {
+  const index = anisonList.indexOf(token)
+  if (index === -1) {
+    return anisonMap[anisonList[0]]
+  }
+  const nextIndex = index === anisonList.length ? 0 : index + 1
+  return anisonMap[nextIndex]
+}
+
+const mapAnisonToStream = (anison: Anison) =>
+  ({
+    url: buildAnisonUrl(anison.video_id),
+    token: anison.token,
+    offsetInMilliseconds: 0,
+    expectedPreviousToken: getPreviousToken(anison.token),
+  } as Stream)
 
 alexaApp.intent(
   'Gohan',
@@ -89,22 +116,10 @@ alexaApp.intent(
 )
 
 alexaApp.intent('PlayRadioIntent', {}, async (request, response) => {
-  const anison = getRandomAnison()
+  const anison = anisonMap[anisonList[0]]
   response
     .say('ランダムに再生します')
-    .audioPlayerPlayStream('REPLACE_ALL', {
-      url: buildAnisonUrl(anison.video_id),
-      token: uuid(),
-      offsetInMilliseconds: 0,
-    })
-    .card({
-      type: 'Standard',
-      title: anison.video_title,
-      text: `Added by ${anison.user_name} at ${anison.added_at}`,
-      image: {
-        largeImageUrl: buildYoutubeThumbnailUrl(anison.video_id),
-      },
-    })
+    .audioPlayerPlayStream('REPLACE_ALL', mapAnisonToStream(anison))
 })
 
 alexaApp.intent('AMAZON.PauseIntent', {}, async (request, response) => {
@@ -112,16 +127,31 @@ alexaApp.intent('AMAZON.PauseIntent', {}, async (request, response) => {
 })
 
 alexaApp.intent('AMAZON.ResumeIntent', {}, async (request, response) => {
-  response
-    .say('仕方ないですね')
-    .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
+  console.log(request.data)
+  response.say('仕方ないですね').audioPlayerStop()
+})
+
+alexaApp.audioPlayer('PlaybackStarted', async (request, response) => {
+  const token = request.data.request.token
+
+  if (token == null) {
+    return
+  }
+  const anison = anisonMap[token]
+  response.card({
+    type: 'Standard',
+    title: anison.video_title,
+    text: `Added by @${anison.user_name} at ${anison.added_at}`,
+    image: {
+      largeImageUrl: buildYoutubeThumbnailUrl(anison.video_id),
+    },
+  })
 })
 
 alexaApp.audioPlayer('PlaybackNearlyFinished', async (request, response) => {
-  response.audioPlayerPlayStream('ENQUEUE', {
-    ...(await getAudioStream()),
-    expectedPreviousToken: request.data.request.token,
-  })
+  const token = request.data.request.token
+  const anison = getNextAnison(token)
+  response.audioPlayerPlayStream('ENQUEUE', mapAnisonToStream(anison))
 })
 
 app.listen(PORT, HOST)
