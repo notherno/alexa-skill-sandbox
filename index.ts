@@ -32,7 +32,7 @@ const getConn = async () =>
 let anisons: {
   video_id: string
   user_name: string
-  title: string
+  video_title: string
   added_at: string
 }[] = []
 ;(async () => {
@@ -99,7 +99,7 @@ alexaApp.intent('PlayRadioIntent', {}, async (request, response) => {
     })
     .card({
       type: 'Standard',
-      title: anison.title,
+      title: anison.video_title,
       text: `Added by ${anison.user_name} at ${anison.added_at}`,
       image: {
         largeImageUrl: buildYoutubeThumbnailUrl(anison.video_id),
