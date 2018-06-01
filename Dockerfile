@@ -14,7 +14,7 @@ RUN apt-get update -y && \
 RUN cd /usr/local/src && \
     mkdir ffmpeg && cd ffmpeg && \
     curl -Lf https://ffmpeg.org/releases/ffmpeg-4.0.tar.bz2 | \
-    tar jxf - ffmpeg-4.0.tar.bz2 --strip-components 1 && \
+    tar jxf - --strip-components 1 && \
     ./configure --prefix=/usr/local && \
     make -j 8 && \
     cat RELEASE && \
