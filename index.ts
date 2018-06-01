@@ -4,18 +4,37 @@ import alexa = require('alexa-app')
 import { Stream } from 'alexa-app'
 import youtubeStream = require('youtube-audio-stream')
 import uuid = require('uuid/v4')
-import { Dropbox } from 'dropbox'
+import mysql = require('mysql2/promise')
+import parseDbUrl = require('parse-database-url')
 
 const PORT = 5000
 const HOST = '0.0.0.0'
 const app = express()
 
-const dropbox = new Dropbox({ accessToken: process.env.DROPBOX_TOKEN })
+const dbConfig = parseDbUrl(process.env.DATABASE_URL) as {
+  driver: 'mysql'
+  user: string
+  password: string
+  host: string
+  port: string
+  database: string
+}
 
-let filePaths: string[] = []
+const getConn = async () =>
+  await mysql.createConnection({
+    host: dbConfig.host,
+    user: dbConfig.user,
+    password: dbConfig.password,
+    port: dbConfig.port,
+    database: dbConfig.database,
+  })
+
+let anisons = []
 ;(async () => {
-  const files = await dropbox.filesListFolder({ path: '/sound/radio/' })
-  filePaths = files.entries.map(file => file.path_lower)
+  const conn = await getConn()
+  anisons = await conn.execute('SELECT * FROM `anison_today`')
+
+  console.log(anisons)
 })()
 
 app.use('/assets', express.static('assets'))
@@ -36,10 +55,6 @@ alexaApp.express({
 })
 
 const getAudioStream = async (): Promise<Stream> => {
-  const data = await dropbox.filesGetTemporaryLink({
-    path: filePaths[Math.floor(Math.random() * (filePaths.length - 1))],
-  })
-
   return {
     // url: data.link,
     url: `${process.env.HOST_NAME}/y/TD5wqsL9-bI`,
