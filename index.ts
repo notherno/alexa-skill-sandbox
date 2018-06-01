@@ -54,7 +54,7 @@ alexaApp.intent(
 
 alexaApp.intent('PlayRadioIntent', {}, async (request, response) => {
   response
-    .say('Dropboxにあるラジオを再生します')
+    .say('ドロップボックスにあるラジオを再生します')
     .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
 })
 
