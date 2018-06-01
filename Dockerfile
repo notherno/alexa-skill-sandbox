@@ -12,9 +12,9 @@ RUN apt-get update -y && \
 
 # Build and install ffmpeg
 RUN cd /usr/local/src && \
-    wget https://ffmpeg.org/releases/ffmpeg-4.0.tar.bz2 && \
-    tar xvf ffmpeg-4.0.tar.bz2 && \
-    cd ffmpeg && \
+    mkdir ffmpeg && cd ffmpeg && \
+    curl -Lf https://ffmpeg.org/releases/ffmpeg-4.0.tar.bz2 | \
+    tar jxf - ffmpeg-4.0.tar.bz2 --strip-components 1 && \
     ./configure --prefix=/usr/local && \
     make -j 8 && \
     cat RELEASE && \
