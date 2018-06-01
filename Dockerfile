@@ -12,11 +12,11 @@ RUN apt-get update -y && \
 
 # Build and install ffmpeg
 RUN cd /usr/local/src && \
-    wget https://www.ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2 && \
+    wget https://ffmpeg.org/releases/ffmpeg-4.0.tar.bz2 && \
     tar jxvf ffmpeg-snapshot.tar.bz2 && \
     cd ffmpeg && \
     ./configure --prefix=/usr/local && \
-    time make -j 8 && \
+    make -j 8 && \
     cat RELEASE && \
     checkinstall -y
 
