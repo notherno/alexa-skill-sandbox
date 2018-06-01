@@ -2,6 +2,7 @@ import 'isomorphic-fetch'
 import express = require('express')
 import alexa = require('alexa-app')
 import { Stream } from 'alexa-app'
+import youtubeStream = require('youtube-audio-stream')
 import uuid = require('uuid/v4')
 import { Dropbox } from 'dropbox'
 
@@ -18,6 +19,12 @@ let filePaths: string[] = []
 })()
 
 app.use('/assets', express.static('assets'))
+
+app.get('/y/:id', (request, response) => {
+  youtubeStream(`https://www.youtube.com/watch?v=${request.params.id}`).pipe(
+    response,
+  )
+})
 
 // ALWAYS setup the alexa app and attach it to express before anything else.
 const alexaApp = new alexa.app('')
