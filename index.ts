@@ -90,7 +90,7 @@ alexaApp.intent('AMAZON.ResumeIntent', {}, async (request, response) => {
     .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
 })
 
-alexaApp.audioPlayer('PlaybackFinished', async (request, response) => {
+alexaApp.audioPlayer('PlaybackNearlyFinished', async (request, response) => {
   response
     .say('さらに音楽を聴きましょう')
     .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
