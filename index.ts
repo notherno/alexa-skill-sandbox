@@ -40,21 +40,11 @@ const getAudioStream = async (): Promise<Stream> => {
   }
 }
 
-alexaApp.intent(
-  'Gohan',
-  {
-    slots: {
-      KIND: 'AMAZON.Food',
-    },
-  },
-  async (request, response) => {
-    const kind = request.slots['KIND']
-
-    response
-      .say('気分を変えて音楽を聴きましょう')
-      .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
-  },
-)
+alexaApp.intent('PlayRadioIntent', {}, async (request, response) => {
+  response
+    .say('Dropboxにあるラジオを再生します')
+    .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
+})
 
 alexaApp.intent('AMAZON.PauseIntent', {}, async (request, response) => {
   response.say('わかりました').audioPlayerStop()
