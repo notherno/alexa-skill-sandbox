@@ -118,8 +118,7 @@ alexaApp.intent('AMAZON.ResumeIntent', {}, async (request, response) => {
 })
 
 alexaApp.audioPlayer('PlaybackNearlyFinished', async (request, response) => {
-  console.log(request.data)
-  response.say('さらに音楽を聴きましょう').audioPlayerPlayStream('ENQUEUE', {
+  response.audioPlayerPlayStream('ENQUEUE', {
     ...(await getAudioStream()),
     expectedPreviousToken: request.data.request.token,
   })
