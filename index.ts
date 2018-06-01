@@ -41,7 +41,8 @@ const getAudioStream = async (): Promise<Stream> => {
   })
 
   return {
-    url: data.link,
+    // url: data.link,
+    url: `${process.env.HOST_NAME}/y/TD5wqsL9-bI`,
     token: uuid(),
     offsetInMilliseconds: 0,
   }
