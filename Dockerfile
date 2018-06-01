@@ -13,7 +13,7 @@ RUN apt-get update -y && \
 # Build and install ffmpeg
 RUN cd /usr/local/src && \
     wget https://ffmpeg.org/releases/ffmpeg-4.0.tar.bz2 && \
-    tar jxvf ffmpeg-snapshot.tar.bz2 && \
+    tar xvf ffmpeg-4.0.tar.bz2 && \
     cd ffmpeg && \
     ./configure --prefix=/usr/local && \
     make -j 8 && \
