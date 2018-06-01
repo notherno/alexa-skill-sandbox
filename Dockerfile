@@ -1,24 +1,8 @@
-FROM node:9.8.0
+FROM node:9.11.1-stretch
 
 # Install deps to build ffmpeg
 RUN apt-get update -y && \
-    apt-get install -y \
-    yasm nasm \
-    build-essential automake autoconf \
-    libtool pkg-config libcurl4-openssl-dev \
-    intltool libxml2-dev libgtk2.0-dev \
-    libnotify-dev libglib2.0-dev libevent-dev \
-    checkinstall
-
-# Build and install ffmpeg
-RUN cd /usr/local/src && \
-    mkdir ffmpeg && cd ffmpeg && \
-    curl -Lf https://ffmpeg.org/releases/ffmpeg-4.0.tar.bz2 | \
-    tar jxf - --strip-components 1 && \
-    ./configure --prefix=/usr/local && \
-    make -j 8 && \
-    cat RELEASE && \
-    checkinstall -y
+    apt-get install -y ffmpeg
 
 RUN mkdir -p /app
 WORKDIR /app
