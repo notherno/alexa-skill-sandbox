@@ -32,9 +32,8 @@ const getConn = async () =>
 let anisons = []
 ;(async () => {
   const conn = await getConn()
-  anisons = await conn.execute('SELECT * FROM `anison_today`')
-
-  console.log(anisons)
+  const result = await conn.execute('SELECT * FROM `anison_today`')
+  anisons = result[0]
 })()
 
 app.use('/assets', express.static('assets'))
@@ -55,9 +54,9 @@ alexaApp.express({
 })
 
 const getAudioStream = async (): Promise<Stream> => {
+  const anison = anisons[Math.floor(Math.random() * anisons.length)]
   return {
-    // url: data.link,
-    url: `${process.env.HOST_NAME}/y/TD5wqsL9-bI`,
+    url: `${process.env.HOST_NAME}/y/${anison.video_id}`,
     token: uuid(),
     offsetInMilliseconds: 0,
   }
@@ -77,7 +76,7 @@ alexaApp.intent(
 
 alexaApp.intent('PlayRadioIntent', {}, async (request, response) => {
   response
-    .say('ドロップボックスにあるラジオを再生します')
+    .say('ランダムに再生します')
     .audioPlayerPlayStream('REPLACE_ALL', await getAudioStream())
 })
 
