@@ -121,7 +121,7 @@ alexaApp.intent(
   },
 )
 
-alexaApp.intent('PlayRadioIntent', {}, async (request, response) => {
+alexaApp.intent('PlayIntent', {}, async (request, response) => {
   const anison = anisonMap[anisonList[0]]
   response.say('ランダムに再生します').audioPlayerPlay('REPLACE_ALL', {
     stream: mapAnisonToStream(anison, false),
