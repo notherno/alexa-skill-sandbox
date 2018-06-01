@@ -48,9 +48,10 @@ let anisonList: string[] = []
   const result = await conn.execute(
     'SELECT * FROM `anison_today` WHERE `is_active` = 1',
   )
-  const anisons = result[0].map(anison => ({ ...anison, token: uuid() }))
-
-  console.log(anisons)
+  const anisons: Anison[] = result[0].map(anison => ({
+    ...anison,
+    token: uuid(),
+  }))
 
   anisonMap = _.keyBy(anisons, 'token')
   anisonList = _.shuffle(anisons).map(anison => anison.token)
@@ -84,8 +85,8 @@ const getPreviousToken = (token: string) => {
   if (index === -1) {
     return token
   }
-  const prevIndex = index === 0 ? anisonList.length - 1 : index - 1
-  return anisonMap[prevIndex].token
+  const prevToken = anisonList[index === 0 ? anisonList.length - 1 : index - 1]
+  return anisonMap[prevToken].token
 }
 
 const getNextAnison = (token: string) => {
