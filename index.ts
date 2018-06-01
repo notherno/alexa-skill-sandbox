@@ -98,13 +98,16 @@ const getNextAnison = (token: string) => {
   return anisonMap[nextIndex]
 }
 
-const mapAnisonToStream = (anison: Anison) =>
-  ({
+const mapAnisonToStream = (anison: Anison, getPrevious: boolean): Stream => {
+  const stream = {
     url: buildAnisonUrl(anison.video_id),
     token: anison.token,
     offsetInMilliseconds: 0,
-    expectedPreviousToken: getPreviousToken(anison.token),
-  } as Stream)
+  }
+  return getPrevious
+    ? { ...stream, expectedPreviousToken: getPreviousToken(anison.token) }
+    : stream
+}
 
 alexaApp.intent(
   'Gohan',
@@ -122,7 +125,7 @@ alexaApp.intent('PlayRadioIntent', {}, async (request, response) => {
   const anison = anisonMap[anisonList[0]]
   response
     .say('ランダムに再生します')
-    .audioPlayerPlayStream('REPLACE_ALL', mapAnisonToStream(anison))
+    .audioPlayerPlayStream('REPLACE_ALL', mapAnisonToStream(anison, false))
 })
 
 alexaApp.intent('AMAZON.PauseIntent', {}, async (request, response) => {
@@ -160,7 +163,7 @@ alexaApp.audioPlayer('PlaybackStarted', async (request, response) => {
 alexaApp.audioPlayer('PlaybackNearlyFinished', async (request, response) => {
   const token = request.data.request.token
   const anison = getNextAnison(token)
-  response.audioPlayerPlayStream('ENQUEUE', mapAnisonToStream(anison))
+  response.audioPlayerPlayStream('ENQUEUE', mapAnisonToStream(anison, true))
 })
 
 app.listen(PORT, HOST)
