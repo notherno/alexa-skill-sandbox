@@ -48,7 +48,7 @@ alexaApp.intent(
     },
   },
   (request, response) => {
-    response.say(`今夜は${request.slots['KIND']}にしましょう`)
+    response.say(`今夜は${request.slots['KIND']['value']}にしましょう`)
   },
 )
 
