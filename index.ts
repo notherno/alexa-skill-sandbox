@@ -132,7 +132,13 @@ alexaApp.intent('AMAZON.ResumeIntent', {}, async (request, response) => {
 })
 
 alexaApp.audioPlayer('PlaybackStarted', async (request, response) => {
-  const token = request.data.request.token
+  let token
+  try {
+    token = request.data.request.token
+  } catch (e) {
+    console.log(e)
+    return
+  }
 
   if (token == null) {
     return
