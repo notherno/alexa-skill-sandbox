@@ -29,14 +29,13 @@ interface Anison {
   token: string
 }
 
-const getConn = async () =>
-  await mysql.createConnection({
-    host: dbConfig.host,
-    user: dbConfig.user,
-    password: dbConfig.password,
-    port: dbConfig.port,
-    database: dbConfig.database,
-  })
+const dbPool = mysql.createPool({
+  host: dbConfig.host,
+  user: dbConfig.user,
+  password: dbConfig.password,
+  port: dbConfig.port,
+  database: dbConfig.database,
+})
 
 let anisonMap: {
   [token: string]: Anison
@@ -44,10 +43,10 @@ let anisonMap: {
 
 let anisonList: string[] = []
 ;(async () => {
-  const conn = await getConn()
-  const result = await conn.execute(
+  const result = await dbPool.execute(
     'SELECT * FROM `anison_today` WHERE `is_active` = 1',
   )
+  await dbPool.end()
   const anisons: Anison[] = result[0].map(anison => ({
     ...anison,
     token: uuid(),
