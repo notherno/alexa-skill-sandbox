@@ -137,7 +137,6 @@ alexaApp.intent('AMAZON.PauseIntent', {}, async (request, response) => {
 })
 
 alexaApp.intent('AMAZON.ResumeIntent', {}, async (request, response) => {
-  console.log(request.data)
   response.say('仕方ないですね').audioPlayerStop()
 })
 
