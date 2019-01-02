@@ -5,21 +5,11 @@ import _ from 'lodash'
 import { AudioItem, Stream } from 'alexa-app'
 import youtubeStream = require('youtube-audio-stream')
 import uuid = require('uuid/v4')
-import mysql = require('mysql2/promise')
-import parseDbUrl = require('parse-database-url')
+import dbPool from './src/mysql'
 
 const PORT = 5000
 const HOST = '0.0.0.0'
 const app = express()
-
-const dbConfig = parseDbUrl(process.env.DATABASE_URL) as {
-  driver: 'mysql'
-  user: string
-  password: string
-  host: string
-  port: string
-  database: string
-}
 
 interface Anison {
   video_id: string
@@ -28,14 +18,6 @@ interface Anison {
   added_at: string
   token: string
 }
-
-const dbPool = mysql.createPool({
-  host: dbConfig.host,
-  user: dbConfig.user,
-  password: dbConfig.password,
-  port: dbConfig.port,
-  database: dbConfig.database,
-})
 
 let anisonMap: {
   [token: string]: Anison
