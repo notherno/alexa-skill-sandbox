@@ -1,4 +1,8 @@
-FROM node:9.8.0
+FROM node:9.11.1-stretch
+
+# Install deps to build ffmpeg
+RUN apt-get update -y && \
+    apt-get install -y ffmpeg
 
 RUN mkdir -p /app
 WORKDIR /app
